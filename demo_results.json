@@ -1,0 +1,156 @@
+{
+  "cards": [
+    {
+      "judge": "fair-7b",
+      "language": "en",
+      "n_items": 40,
+      "n_judgments": 80,
+      "accuracy": 0.8,
+      "position_bias_delta": -0.1,
+      "verbosity_susceptibility": 0.125,
+      "order_consistency": 0.75,
+      "reliability_score": 0.7176
+    },
+    {
+      "judge": "fair-7b",
+      "language": "es",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.85,
+      "position_bias_delta": -0.2,
+      "verbosity_susceptibility": 0.125,
+      "order_consistency": 0.8,
+      "reliability_score": 0.6972
+    },
+    {
+      "judge": "fair-7b",
+      "language": "hi",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.875,
+      "position_bias_delta": 0.25,
+      "verbosity_susceptibility": 0.0,
+      "order_consistency": 0.75,
+      "reliability_score": 0.66
+    },
+    {
+      "judge": "fair-7b",
+      "language": "sw",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.85,
+      "position_bias_delta": 0.0,
+      "verbosity_susceptibility": 0.0,
+      "order_consistency": 0.8,
+      "reliability_score": 0.83
+    },
+    {
+      "judge": "slotA-7b",
+      "language": "en",
+      "n_items": 40,
+      "n_judgments": 80,
+      "accuracy": 0.7375,
+      "position_bias_delta": 0.525,
+      "verbosity_susceptibility": 0.125,
+      "order_consistency": 0.475,
+      "reliability_score": 0.3669
+    },
+    {
+      "judge": "slotA-7b",
+      "language": "es",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.675,
+      "position_bias_delta": 0.55,
+      "verbosity_susceptibility": 0.375,
+      "order_consistency": 0.45,
+      "reliability_score": 0.3276
+    },
+    {
+      "judge": "slotA-7b",
+      "language": "hi",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.6,
+      "position_bias_delta": 0.6,
+      "verbosity_susceptibility": 0.125,
+      "order_consistency": 0.4,
+      "reliability_score": 0.2704
+    },
+    {
+      "judge": "slotA-7b",
+      "language": "sw",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.7,
+      "position_bias_delta": 0.6,
+      "verbosity_susceptibility": 0.25,
+      "order_consistency": 0.4,
+      "reliability_score": 0.3016
+    },
+    {
+      "judge": "verbose-7b",
+      "language": "en",
+      "n_items": 40,
+      "n_judgments": 80,
+      "accuracy": 0.725,
+      "position_bias_delta": -0.05,
+      "verbosity_susceptibility": 0.625,
+      "order_consistency": 0.85,
+      "reliability_score": 0.6138
+    },
+    {
+      "judge": "verbose-7b",
+      "language": "es",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.775,
+      "position_bias_delta": 0.05,
+      "verbosity_susceptibility": 0.75,
+      "order_consistency": 0.95,
+      "reliability_score": 0.5273
+    },
+    {
+      "judge": "verbose-7b",
+      "language": "hi",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.75,
+      "position_bias_delta": 0.1,
+      "verbosity_susceptibility": 0.625,
+      "order_consistency": 0.8,
+      "reliability_score": 0.5844
+    },
+    {
+      "judge": "verbose-7b",
+      "language": "sw",
+      "n_items": 20,
+      "n_judgments": 40,
+      "accuracy": 0.75,
+      "position_bias_delta": 0.1,
+      "verbosity_susceptibility": 0.625,
+      "order_consistency": 0.7,
+      "reliability_score": 0.5541
+    }
+  ],
+  "leaderboard": [
+    {
+      "judge": "fair-7b",
+      "reliability": 0.7262,
+      "macro_accuracy": 0.8438,
+      "n_languages": 4
+    },
+    {
+      "judge": "verbose-7b",
+      "reliability": 0.5699,
+      "macro_accuracy": 0.75,
+      "n_languages": 4
+    },
+    {
+      "judge": "slotA-7b",
+      "reliability": 0.3166,
+      "macro_accuracy": 0.6781,
+      "n_languages": 4
+    }
+  ]
+}

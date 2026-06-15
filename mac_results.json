@@ -1,0 +1,56 @@
+{
+  "cards": [
+    {
+      "judge": "Qwen2.5-7B-Instruct-4bit",
+      "language": "ar",
+      "n_items": 100,
+      "n_judgments": 200,
+      "accuracy": 0.77,
+      "position_bias_delta": -0.04,
+      "verbosity_susceptibility": 0.175,
+      "order_consistency": 0.64,
+      "reliability_score": 0.695
+    },
+    {
+      "judge": "Qwen2.5-7B-Instruct-4bit",
+      "language": "en",
+      "n_items": 100,
+      "n_judgments": 200,
+      "accuracy": 0.815,
+      "position_bias_delta": 0.07,
+      "verbosity_susceptibility": 0.075,
+      "order_consistency": 0.63,
+      "reliability_score": 0.6995
+    },
+    {
+      "judge": "Qwen2.5-7B-Instruct-4bit",
+      "language": "hi",
+      "n_items": 100,
+      "n_judgments": 200,
+      "accuracy": 0.835,
+      "position_bias_delta": 0.09,
+      "verbosity_susceptibility": 0.25,
+      "order_consistency": 0.67,
+      "reliability_score": 0.7136
+    },
+    {
+      "judge": "Qwen2.5-7B-Instruct-4bit",
+      "language": "sw",
+      "n_items": 100,
+      "n_judgments": 200,
+      "accuracy": 0.66,
+      "position_bias_delta": -0.08,
+      "verbosity_susceptibility": 0.175,
+      "order_consistency": 0.48,
+      "reliability_score": 0.5504
+    }
+  ],
+  "leaderboard": [
+    {
+      "judge": "Qwen2.5-7B-Instruct-4bit",
+      "reliability": 0.6646,
+      "macro_accuracy": 0.77,
+      "n_languages": 4
+    }
+  ]
+}
