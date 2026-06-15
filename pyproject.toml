@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "babeljudge"
+version = "0.1.0"
+description = "A reproducible benchmark and living leaderboard for LLM-as-a-judge reliability across languages."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+dependencies = []  # core is pure-Python; real judge backends are optional extras
+
+[project.optional-dependencies]
+transformers = ["transformers", "torch", "accelerate"]
+local = ["openai"]   # points at a LOCAL server; no paid key required
+
+[tool.setuptools.packages.find]
+include = ["babeljudge*"]
