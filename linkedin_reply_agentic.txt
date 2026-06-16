@@ -1,0 +1,5 @@
+Right now BabelJudge is cross-lingual pairwise response evaluation, but the methodology is designed to extend. The gold-labeling-by-degradation principle works anywhere you can define a "reference trajectory" — tool call sequences and multi-turn reasoning traces are natural next targets.
+
+What would need to be added is a new family of agentic perturbation types (argument corruption, tool swaps, reasoning step drops) and judge prompts that can handle multi-turn context. The harness and reliability metrics stay the same.
+
+It's a real direction — agentic eval is exactly where the judge reliability problem is least studied and probably most consequential. Happy to dig into that extension if there's interest.
