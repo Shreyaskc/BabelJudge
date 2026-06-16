@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use BabelJudge in your research, please cite it as below."
+type: software
+title: "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages"
+version: 0.1.0
+date-released: 2026-06-14
+authors:
+  - family-names: "KC"
+    given-names: "Shreyas"
+    email: shreyaskunjalchandrahas@gmail.com
+    orcid: ""
+license: Apache-2.0
+repository-code: "https://github.com/Shreyaskc/BabelJudge"
+url: "https://github.com/Shreyaskc/BabelJudge"
+keywords:
+  - llm-as-a-judge
+  - evaluation
+  - multilingual
+  - reliability
+  - benchmark
+  - bias
+  - position-bias
+  - verbosity-bias
+  - agentic-evaluation
+  - tool-calling
+abstract: >
+  BabelJudge is an open-source benchmark and reliability audit framework for
+  LLM-as-a-judge evaluation. It measures four systematic judge biases—position
+  bias, verbosity bias, order inconsistency, and cross-lingual degradation—
+  without requiring human preference labels. Gold-labeled pairwise items are
+  manufactured by applying controlled perturbations to reference responses,
+  making the better response known by construction. The framework extends to
+  agentic settings (tool-calling and multi-turn reasoning traces) via the
+  babeljudge.agentic subpackage.
+preferred-citation:
+  type: article
+  title: "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages"
+  authors:
+    - family-names: "KC"
+      given-names: "Shreyas"
+      email: shreyaskunjalchandrahas@gmail.com
+  year: 2026
+  url: "https://github.com/Shreyaskc/BabelJudge"
+  notes: "Preprint available at arXiv (forthcoming)"
