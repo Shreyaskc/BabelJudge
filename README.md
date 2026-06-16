@@ -630,6 +630,129 @@ See `CONTRIBUTING.md` for the full protocol.
 
 ---
 
+## Agentic evaluation (tool-calling and multi-turn reasoning)
+
+BabelJudge extends to agentic settings via `babeljudge.agentic`. The same gold-labeling-by-degradation principle transfers: instead of degrading a text response, we degrade a reference agent trajectory — wrong tool arguments, swapped tool names, hallucinated calls, missing steps. The reference trajectory is by construction the better one, with no human annotation required.
+
+### When to use this
+
+| Use case | Module |
+|---|---|
+| Cross-lingual response quality | `babeljudge` (core) |
+| Tool-calling correctness | `babeljudge.agentic` |
+| Multi-turn reasoning traces | `babeljudge.agentic` |
+| Hallucinated tool detection | `babeljudge.agentic` |
+
+### New perturbation types
+
+| Perturbation | What it does | Bias probed |
+|---|---|---|
+| `argument_corrupt` | Change one argument value to something wrong | Basic tool-call accuracy |
+| `tool_name_swap` | Replace a tool name with a wrong alternative | Tool selection accuracy |
+| `hallucinated_tool` | Insert a made-up tool call between real steps | Hallucination detection |
+| `missing_required_arg` | Remove a required argument from a tool call | Completeness checking |
+| `extra_spurious_arg` | Add a nonsense key/value pair | Noise sensitivity |
+| `drop_intermediate_step` | Remove one reasoning step from the trace | Gap detection |
+| `corrupt_tool_result` | Mutate a tool's return value | Downstream consistency |
+| `early_termination` | Cut the trajectory off at the midpoint | Completeness bias |
+| `step_pad` | Append redundant repeated steps (LONGER trace) | **Trajectory-length bias** |
+
+### New metrics
+
+| Metric | Description |
+|---|---|
+| `tool_accuracy` | Rate of correctly preferring the reference trajectory |
+| `argument_accuracy` | Accuracy specifically on argument-level errors |
+| `hallucination_detection` | Rate of catching hallucinated tool calls |
+| `trajectory_length_bias` | Rate of preferring the longer-but-worse trajectory |
+| `order_consistency` | Consistency across both presentation orders |
+| `reliability_score` | Single rankable number: competence × (1 − bias penalties) |
+
+### Quick start (no network required)
+
+```python
+from babeljudge import create_judge
+from babeljudge.agentic import (
+    synthetic_tool_tasks,   # 8 built-in tasks, zero network
+    build_agent_dataset,
+    AgentJudge,
+    evaluate_agent,
+    agent_cards_to_markdown,
+)
+
+# 1. Reference trajectories (real or synthetic)
+traces = synthetic_tool_tasks()
+
+# 2. Gold-labeled items (144 items: 8 tasks × 9 perturbations × 2 severities)
+items = build_agent_dataset(traces)
+
+# 3. Wrap any text judge as an agent judge
+judge = AgentJudge(create_judge("anthropic"), focus="tool_calls")
+# or: focus="full_trace" to include model reasoning steps
+
+# 4. Evaluate
+results = evaluate_agent([judge], items)
+print(agent_cards_to_markdown(results))
+```
+
+Run the zero-network demo (MockJudge, no API key needed):
+
+```bash
+python examples/run_agentic_demo.py
+```
+
+### Two evaluation modes
+
+**`focus="tool_calls"`** — serialize only the tool name, arguments, and result for each call. Fast, token-efficient, good for benchmarking tool-selection quality.
+
+```
+Task: What is the current weather in Paris?
+
+[1] get_weather(city='Paris', units='metric') -> 15°C, partly cloudy
+```
+
+**`focus="full_trace"`** — include model thoughts alongside each action. More context for multi-turn reasoning evaluation.
+
+```
+Task: What is the current weather in Paris?
+
+Thought 1: I need to get the current weather for Paris.
+Action 1: get_weather(city='Paris', units='metric')
+   Result: 15°C, partly cloudy, 30% rain chance
+(trace complete)
+```
+
+### Loading real tool-calling data
+
+```python
+# Berkeley Function-Calling Leaderboard (requires: pip install datasets)
+from babeljudge.agentic import from_bfcl
+
+traces = from_bfcl(n=100, categories=["weather", "finance"])
+items  = build_agent_dataset(traces, perturbations=["argument_corrupt", "tool_name_swap"])
+```
+
+### Composing with the text benchmark
+
+You can benchmark the same judge on both text responses and agent trajectories, then compare scores to understand where reliability breaks down:
+
+```python
+import babeljudge as bj
+from babeljudge.agentic import AgentJudge, evaluate_agent, build_agent_dataset, synthetic_tool_tasks
+
+# Text benchmark
+text_judge  = bj.create_judge("anthropic")
+text_items  = bj.build_dataset(bj.from_aya(["en", "hi", "ar", "sw"], n_per_lang=25))
+text_results = bj.evaluate([text_judge], text_items)
+
+# Agentic benchmark
+agent_judge  = AgentJudge(bj.create_judge("anthropic"), focus="tool_calls")
+agent_items  = build_agent_dataset(synthetic_tool_tasks())
+agent_results = evaluate_agent([agent_judge], agent_items)
+```
+
+---
+
 ## License
 
 Code: [Apache-2.0](LICENSE)  

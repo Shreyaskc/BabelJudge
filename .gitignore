@@ -20,3 +20,9 @@ env/
 
 # macOS
 .DS_Store
+
+# Generated benchmark outputs
+agentic_demo_results.json
+agentic_demo_leaderboard.md
+demo_results.json
+demo_leaderboard.md
