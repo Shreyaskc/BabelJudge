@@ -8,24 +8,42 @@ It does not train anything. It does not need human preference labels. It measure
 
 ---
 
-## First real result
+## Benchmark results
 
-Benchmark run on **2026-06-14** using Qwen2.5-7B-Instruct-4bit (Apple Silicon, MLX backend), 4 languages from the Aya dataset, 10 references per language, 800 total judge calls.
+> Run: **2026-06-14** · Model: `mlx-community/Qwen2.5-7B-Instruct-4bit` · Data: Aya dataset · Languages: en, hi, ar, sw · 10 refs/lang · 800 judge calls total
+
+### Leaderboard
 
 | Rank | Judge | Reliability | Macro-Acc | Languages |
 |---|---|---|---|---|
 | 1 | Qwen2.5-7B-Instruct-4bit | **0.665** | 0.770 | en, hi, ar, sw |
 
-Per-language breakdown:
+### Results table
 
-| Lang | Accuracy | Pos-BiasΔ | VerbositySusc | OrderConsist | Reliability |
-|---|---|---|---|---|---|
-| hi | 0.835 | +0.090 | 0.250 | 0.670 | **0.714** |
-| en | 0.815 | +0.070 | 0.075 | 0.630 | **0.700** |
-| ar | 0.770 | -0.040 | 0.175 | 0.640 | **0.695** |
-| sw | 0.660 | -0.080 | 0.175 | 0.480 | **0.550** |
+![Results table](docs/img/results_table.png)
 
-Swahili is notably weaker — classic low-resource degradation. The reliability gap between Hindi (0.714) and Swahili (0.550) is larger than the accuracy gap alone would suggest, because order-consistency collapses in Swahili (0.48 vs 0.67).
+Color coding: **green** = good, **yellow** = marginal, **red** = needs attention.
+
+### Reliability vs raw accuracy
+
+![Reliability vs accuracy](docs/img/reliability_vs_accuracy.png)
+
+Raw accuracy stays above 0.66 for all languages. Reliability drops sharply for Swahili (0.550) once bias and order-inconsistency penalties are applied — the gap between what accuracy shows and what reliability reveals is widest for the lowest-resource language.
+
+### Per-metric bias breakdown
+
+![Bias breakdown](docs/img/bias_breakdown.png)
+
+Key observations:
+- **Verbosity susceptibility** is clean in English (0.075) but rises to 0.25 in Hindi — the judge is more easily fooled by longer text in Hindi
+- **Order consistency** collapses to 0.48 in Swahili — the judge is effectively flipping a coin when the pair order is swapped, making Swahili eval results noise-dominated
+- **Position bias Δ** is within acceptable range (|Δ| < 0.10) for all languages
+
+### Per-language reliability radar
+
+![Radar chart](docs/img/radar_per_language.png)
+
+Each axis represents a normalised reliability dimension. Larger area = more reliable judge. The Swahili polygon is notably smaller and more irregular, driven by its low order-consistency.
 
 ---
 
