@@ -11,6 +11,8 @@
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{listings}
 \usepackage{caption}
+\usepackage{subcaption}
+\graphicspath{{figures/}}
 
 \hypersetup{
     colorlinks=true,
@@ -43,10 +45,10 @@
 LLM-as-a-judge has become the dominant approach to scalable evaluation in NLP pipelines, yet the judges themselves carry systematic biases that raw accuracy hides: they favour responses placed in slot A (\textit{position bias}), they prefer longer responses regardless of quality (\textit{verbosity bias}), and their reliability degrades sharply in lower-resource languages. We introduce \textbf{BabelJudge}, an open-source benchmark and reliability audit framework that measures all four failure modes—position bias, verbosity bias, order inconsistency, and cross-lingual degradation—on any judge model, without requiring human preference labels. The key insight is \emph{gold-labelling by degradation}: starting from a high-quality reference response and applying a controlled perturbation yields a pairwise item whose gold label (prefer the reference) is known by construction. We evaluate \texttt{Qwen2.5-7B-Instruct-4bit} across English, Hindi, Arabic, and Swahili and find that reliability (our composite bias-penalised metric) drops from 0.714 in Hindi to 0.550 in Swahili, a gap that raw accuracy (0.835 vs.\ 0.660) understates but does not fully explain. We further extend the framework to \emph{agentic} settings via nine trajectory-level perturbations (wrong arguments, swapped tools, hallucinated calls, missing steps) and a matching set of agentic reliability metrics. BabelJudge is available as a Python package at \url{https://github.com/Shreyaskc/BabelJudge}.
 \end{abstract}
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Introduction}
 \label{sec:intro}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 The adoption of LLM-as-a-judge evaluation has accelerated rapidly. LLMs now routinely score the outputs of other LLMs in benchmarks~\cite{zheng2023judging}, RLHF preference data collection~\cite{ouyang2022training}, red-teaming~\cite{perez2022red}, and production quality gates. The appeal is clear: a capable language model can provide nuanced, human-like evaluation at a fraction of the annotation cost.
 
@@ -70,10 +72,20 @@ These biases are documented in scattered one-off studies with incompatible exper
     \item An open-source Python package with adapters for 11 judge backends (local, cloud API, OpenAI-compatible servers).
 \end{enumerate}
 
-%─────────────────────────────────────────────────────────────────────────────
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{methodology.png}
+  \caption{The BabelJudge pipeline. A reference response is drawn from a multilingual corpus and
+    degraded by the perturbation engine (five types, two severity levels) to produce a gold-labelled
+    pairwise item. Each item is presented to the judge under both slot orderings (position-bias probe).
+    No human annotation is required: the reference response is by construction the better one.}
+  \label{fig:pipeline}
+\end{figure}
+
+%-----------------------------------------------------------------------------
 \section{Related Work}
 \label{sec:related}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \paragraph{LLM-as-a-judge.}
 \citet{zheng2023judging} introduced MT-Bench and Chatbot Arena, establishing pairwise LLM judging as a viable alternative to human evaluation. \citet{dubois2024alpacafarm} used GPT-4 as a proxy judge in instruction-following evaluation. \citet{liu2023calibrating} calibrated GPT-4's pairwise preferences against human annotations. Our work does not evaluate \emph{whether} LLM judges correlate with human judgement, but rather whether they are internally consistent and unbiased in their mechanics.
@@ -87,10 +99,10 @@ These biases are documented in scattered one-off studies with incompatible exper
 \paragraph{Annotation-free evaluation.}
 \citet{guo2023evaluating} and \citet{fu2023gptscore} propose reference-free LLM-based metrics, but these still require human validation at some stage. Our perturbation approach is analogous to \emph{contrast sets}~\cite{gardner2020evaluating} and \emph{checklist}~\cite{ribeiro2020beyond} testing in that we manufacture controlled test cases, but applied to the judge rather than the model under evaluation.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Methodology}
 \label{sec:method}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \subsection{Gold-Labelling by Degradation}
 \label{sec:gold}
@@ -103,7 +115,7 @@ Formally, let $\mathcal{D} = \{(q_i, r_i)\}_{i=1}^{N}$ be a set of (prompt, refe
 \]
 where $p_{i,t} = \text{perturb}_t(r_i, \text{severity}, \text{rng})$.
 
-Each item is presented to the judge under both slot orderings (\textit{ref-first} and \textit{pert-first}), yielding two judgements per item. This dual-order design is what makes position bias and order consistency directly measurable.
+Each item is presented to the judge under both slot orderings (\textit{ref-first} and \textit{pert-first}), yielding two judgements per item. This dual-order design is what makes position bias and order consistency directly measurable. The full pipeline is illustrated in Figure~\ref{fig:pipeline}.
 
 \subsection{Perturbation Types}
 \label{sec:perturbations}
@@ -129,6 +141,16 @@ Table~\ref{tab:perturbations} describes the five perturbation types. They are de
 \end{table}
 
 The \texttt{repeat\_pad} perturbation is the verbosity-bias probe. Unlike all other perturbations, it makes the \emph{perturbed} response \emph{longer} than the reference while making it strictly worse (the extra content is redundant). A judge that prefers the padded response is exhibiting verbosity bias: it is rewarding length rather than quality.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.92\textwidth]{reliability_vs_accuracy.png}
+  \caption{Reliability score vs.\ raw accuracy for Qwen2.5-7B-Instruct-4bit across four
+    languages. Raw accuracy stays above 0.66 in all languages; reliability drops sharply
+    for Swahili (0.550) once position-bias and order-inconsistency penalties are applied.
+    The dashed line marks the 0.65 recommended deployment threshold.}
+  \label{fig:rel_vs_acc}
+\end{figure}
 
 \subsection{Judge Evaluation Protocol}
 \label{sec:protocol}
@@ -176,10 +198,10 @@ R = \underbrace{(0.6 \cdot \text{acc} + 0.4 \cdot \kappa_{\text{ord}})}_{\text{c
 
 The multiplicative gating is intentional: a judge that is accurate-but-biased should be penalised more severely than additive averaging would suggest. The penalty weights (0.8 and 0.7) treat position bias as slightly more damaging than verbosity bias; they are designed to bring $R$ below the 0.65 threshold for judges with clearly problematic bias, regardless of their raw accuracy.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Experimental Setup}
 \label{sec:setup}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \paragraph{Judge model.} We evaluate \texttt{mlx-community/Qwen2.5-7B-Instruct-4bit}, a 4-bit quantised version of Qwen2.5-7B-Instruct running natively on Apple Silicon via MLX~\cite{mlx2023}. This size was chosen as a representative open-weight judge that fits in 16~GB of unified memory, making it accessible to practitioners without a server-grade GPU.
 
@@ -191,10 +213,10 @@ The multiplicative gating is intentional: a judge that is accurate-but-biased sh
 
 \paragraph{Evaluation.} All judge calls are made locally on an Apple M-series machine. No external API calls are made. The harness records raw judge output for auditing.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Results}
 \label{sec:results}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \subsection{Per-Language Reliability Cards}
 
@@ -220,13 +242,13 @@ Swahili (sw)  & 0.660 & $-0.080$ & 0.175 & 0.480 & \textbf{0.550} \\
 \subsection{Key Findings}
 
 \paragraph{Raw accuracy overstates reliability across the board.}
-The macro accuracy (0.770) is 15.6 percentage points above the macro reliability (0.614 if we compare per-language averages), and the gap is language-dependent. This is the central claim: accuracy is an incomplete signal for judge quality.
+The macro accuracy (0.770) is 15.6 percentage points above the macro reliability (0.614 per-language average), and the gap is language-dependent (Figure~\ref{fig:rel_vs_acc}). This is the central claim: accuracy is an incomplete signal for judge quality.
 
 \paragraph{Swahili reliability collapses.}
 Swahili reliability (0.550) is 23 points below Hindi (0.714) despite the accuracy gap being only 17.5 points (0.835 vs.\ 0.660). The primary driver is order consistency: at 0.480, the judge is effectively flipping a coin when slot order is swapped. This renders Swahili evaluation results noise-dominated — the judge's verdict depends more on which response was shown first than on which response was better.
 
 \paragraph{Verbosity susceptibility is language-dependent.}
-English verbosity susceptibility is very low (0.075), but rises to 0.250 in Hindi. The judge is significantly more likely to be fooled by longer-but-redundant responses in Hindi than in English, even though the perturbation function is identical. This may reflect differences in the judge's calibration across scripts or the relative prevalence of Hindi instruction-following data in training.
+As shown in Figure~\ref{fig:bias_breakdown}, English verbosity susceptibility is very low (0.075), but rises to 0.250 in Hindi. The judge is significantly more likely to be fooled by longer-but-redundant responses in Hindi than in English, even though the perturbation function is identical. This may reflect differences in the judge's calibration across scripts or the relative prevalence of Hindi instruction-following data in training.
 
 \paragraph{Position bias is within acceptable range for all languages.}
 All $|\Delta_{\text{pos}}|$ values are below 0.10, suggesting the model has been at least partially debiased with respect to slot preference at this sample size. Larger evaluations may surface more subtle position effects.
@@ -234,10 +256,31 @@ All $|\Delta_{\text{pos}}|$ values are below 0.10, suggesting the model has been
 \paragraph{Reliability threshold.}
 We propose $R \geq 0.65$ as a minimum threshold for deploying a judge in production. By this criterion, Swahili (0.550) fails, and all other languages pass marginally. Qwen2.5-7B should not be used as an unsupervised judge for Swahili without additional debiasing or ensemble averaging.
 
-%─────────────────────────────────────────────────────────────────────────────
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{bias_breakdown.png}
+  \caption{Per-metric bias breakdown across four languages. Colours indicate severity:
+    green = within acceptable range, orange/yellow = marginal, red = problematic.
+    Verbosity susceptibility rises from 0.075 in English to 0.250 in Hindi; order
+    consistency collapses to 0.480 in Swahili, making judge verdicts effectively
+    random under slot-order swaps.}
+  \label{fig:bias_breakdown}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{radar_per_language.png}
+  \caption{Reliability radar charts per language. Each axis represents a normalised
+    reliability dimension (higher = better); the filled area summarises overall
+    judge quality. The Swahili polygon is notably smaller and more irregular,
+    driven by low order-consistency (bottom-left axis).}
+  \label{fig:radar}
+\end{figure}
+
+%-----------------------------------------------------------------------------
 \section{Agentic Extension}
 \label{sec:agentic}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 LLM judges are increasingly used to evaluate agent trajectories: sequences of tool calls, intermediate reasoning steps, and final answers. The standard approach is to ask a judge to compare two trajectories and pick the better one. The same biases that afflict text judges (position, verbosity, inconsistency) apply here, and new biases emerge:
 
@@ -309,10 +352,10 @@ Action 1: get_weather(city='Paris', units='metric')
 
 Both modes present items under both slot orderings so position and consistency metrics are computed identically to the text benchmark.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Practical Guidance}
 \label{sec:guidance}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \paragraph{Deploying a judge for multilingual eval.}
 Run BabelJudge on your judge before deploying it. If reliability is below 0.65 for any target language, either (a) route that language to a stronger judge or human annotators, or (b) use ensemble judging (multiple independent judges, majority vote) to reduce the noise from low order-consistency.
@@ -323,10 +366,10 @@ The four-panel bias breakdown distinguishes between qualitatively different prob
 \paragraph{Agentic evaluation.}
 For tool-calling benchmarks: run BabelJudge Agentic before committing to a judge. A judge with high text reliability may have low argument accuracy — it may prefer the smoother-sounding trajectory even when the tool arguments are wrong.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Limitations and Future Work}
 \label{sec:limitations}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 \paragraph{Sample size.}
 The current benchmark uses 10 reference responses per language (200 judge calls per language). This is sufficient to demonstrate reliability gaps but not to produce stable estimates for model-selection decisions. Future runs will use 100+ references per language.
@@ -343,16 +386,16 @@ Perturbations are intentionally conservative (they guarantee degradation). Subtl
 \paragraph{Agentic gold data.}
 The synthetic tool tasks in \texttt{synthetic\_tool\_tasks()} are hand-crafted for the demo. Scaling to real tool-calling benchmarks (BFCL, ToolBench) requires more careful validation that the reference trajectories are genuinely correct.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \section{Conclusion}
 \label{sec:conclusion}
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 
 We presented BabelJudge, an open-source benchmark for auditing LLM-as-a-judge reliability without human annotation. The gold-labelling-by-degradation approach manufactures pairwise items with known gold labels by applying controlled perturbations to reference responses. Applied to Qwen2.5-7B-Instruct-4bit across four languages, we find that raw accuracy substantially overstates reliability: the bias-penalised reliability score reveals a 23-point gap between Hindi and Swahili that accuracy alone understates. The framework extends naturally to agentic settings with nine trajectory-level perturbations and three new metrics for tool-calling reliability.
 
 BabelJudge is designed to be a living leaderboard: any team can submit their judge's reliability card by running the harness and opening a pull request. We hope it becomes a standard checkpoint before deploying an LLM judge in multilingual or agentic production settings.
 
-%─────────────────────────────────────────────────────────────────────────────
+%-----------------------------------------------------------------------------
 \bibliographystyle{plainnat}
 \bibliography{references}
 
