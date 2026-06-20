@@ -188,65 +188,67 @@ def fig_methodology():
 # Figure 2 — Reliability vs Raw Accuracy
 # ─────────────────────────────────────────────────────────────────────────────
 def fig_reliability_vs_accuracy():
-    fig, ax = plt.subplots(figsize=(8, 4.5))
+    fig, ax = plt.subplots(figsize=(9, 5.0))
 
     accuracy = [CARDS[l]["accuracy"]          for l in LANGS]
     reliab   = [CARDS[l]["reliability_score"] for l in LANGS]
     colors   = [LANG_COLORS[l]                for l in LANGS]
     xlabels  = [f"{LANG_LABELS[l]}\n({l})"   for l in LANGS]
 
-    x = np.arange(len(LANGS))
-    w = 0.33
+    x   = np.arange(len(LANGS))
+    w   = 0.28   # bar width — narrower than before
+    gap = 0.08   # explicit gap between the two bars in each group
 
-    acc_bars = ax.bar(x - w/2, accuracy, w, color=LGREY, alpha=0.65,
-                      label="Raw Accuracy", zorder=3,
-                      edgecolor=GREY, linewidth=0.6)
-    rel_bars = ax.bar(x + w/2, reliab,   w, color=colors, alpha=0.90,
-                      label="Reliability Score", zorder=3,
-                      edgecolor=colors, linewidth=0.8)
+    # Accuracy bars: centred to the LEFT of x
+    acc_cx   = x - (w / 2 + gap / 2)
+    acc_bars = ax.bar(acc_cx, accuracy, w,
+                      color=LGREY, alpha=0.70, label="Raw Accuracy",
+                      zorder=3, edgecolor="#999999", linewidth=0.8)
 
-    # value labels — reliability bars (bold, coloured)
-    for bar, val, col in zip(rel_bars, reliab, colors):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 0.016,
-                f"{val:.3f}", ha="center", va="bottom",
-                fontsize=8.5, fontweight="bold", color=col)
+    # Reliability bars: centred to the RIGHT of x
+    rel_cx   = x + (w / 2 + gap / 2)
+    rel_bars = ax.bar(rel_cx, reliab, w,
+                      color=colors, alpha=0.90, label="Reliability Score",
+                      zorder=3, edgecolor=colors, linewidth=0.9)
 
-    # value labels — accuracy bars (grey, smaller)
-    for bar, val in zip(acc_bars, accuracy):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 0.016,
-                f"{val:.2f}", ha="center", va="bottom",
-                fontsize=8, color=GREY)
+    # ── Value labels above each bar ──────────────────────────────────────────
+    VPAD = 0.022   # vertical gap between bar top and label
 
-    # threshold line
+    for cx, val in zip(acc_cx, accuracy):
+        ax.text(cx, val + VPAD, f"{val:.2f}",
+                ha="center", va="bottom", fontsize=8.5, color=DKGREY)
+
+    for cx, val, col in zip(rel_cx, reliab, colors):
+        ax.text(cx, val + VPAD, f"{val:.3f}",
+                ha="center", va="bottom",
+                fontsize=9, fontweight="bold", color=col)
+
+    # ── Threshold line ───────────────────────────────────────────────────────
     ax.axhline(0.65, color=RED, lw=1.3, ls="--", alpha=0.75, zorder=2)
-    ax.text(len(LANGS) - 0.05, 0.655, "R = 0.65  (deployment threshold)",
-            ha="right", va="bottom", fontsize=8, color=RED)
 
+    # Label anchored to the LEFT y-axis edge using a blended transform
+    # (x in axes coords 0–1, y in data coords) — keeps it away from all bars
+    from matplotlib.transforms import blended_transform_factory
+    trans = blended_transform_factory(ax.transAxes, ax.transData)
+    ax.text(0.01, 0.638, "R = 0.65 — deployment threshold",
+            transform=trans, ha="left", va="top",
+            fontsize=8, color=RED, style="italic")
+
+    # ── Axes formatting ──────────────────────────────────────────────────────
     ax.set_xticks(x)
-    ax.set_xticklabels(xlabels, fontsize=10)
-    ax.set_ylim(0, 1.05)
+    ax.set_xticklabels(xlabels, fontsize=10.5)
+    ax.set_ylim(0, 1.07)
+    ax.set_xlim(-0.55, len(LANGS) - 0.45)
     ax.set_ylabel("Score", fontsize=10, labelpad=8)
     ax.set_title("Reliability Score vs Raw Accuracy — Qwen2.5-7B-Instruct-4bit",
                  fontsize=11, fontweight="bold", color=BLACK, pad=12)
 
     legend_patches = [
-        mpatches.Patch(color=LGREY, alpha=0.7, label="Raw Accuracy"),
-        mpatches.Patch(color=BLUE,  alpha=0.9, label="Reliability Score"),
+        mpatches.Patch(color=LGREY, alpha=0.75, label="Raw Accuracy"),
+        mpatches.Patch(color=BLUE,  alpha=0.90, label="Reliability Score"),
     ]
-    ax.legend(handles=legend_patches, loc="lower left", fontsize=9, framealpha=0)
-
-    # Swahili annotation — placed in clear space above chart, left-aligned to sw bar
-    sw_rel = CARDS["sw"]["reliability_score"]
-    sw_idx = LANGS.index("sw")
-    sw_x   = sw_idx + w/2
-    ax.annotate(
-        "Order consistency = 0.48\n→ judge is near-random\n   under slot swap",
-        xy=(sw_x + 0.02, sw_rel + 0.01),
-        xytext=(sw_x + 0.55, sw_rel + 0.18),
-        fontsize=7.5, color=DKGREY, ha="left", va="bottom",
-        arrowprops=dict(arrowstyle="-|>", color=LGREY, lw=0.9,
-                        mutation_scale=10),
-    )
+    ax.legend(handles=legend_patches, loc="upper right",
+              fontsize=9.5, framealpha=0, borderpad=0)
 
     fig.tight_layout(pad=1.2)
     save(fig, "reliability_vs_accuracy.png")
