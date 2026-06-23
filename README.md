@@ -758,17 +758,20 @@ agent_results = evaluate_agent([agent_judge], agent_items)
 If you use BabelJudge in your research, please cite:
 
 ```bibtex
-@software{babeljudge2026,
-  author    = {KC, Shreyas},
-  title     = {{BabelJudge}: Measuring {LLM}-as-a-Judge Reliability Across Languages},
-  year      = {2026},
-  publisher = {GitHub},
-  url       = {https://github.com/Shreyaskc/BabelJudge},
-  note      = {Preprint: arXiv (forthcoming)}
+@article{babeljudge2026,
+  author        = {KC, Shreyas},
+  title         = {{BabelJudge}: Measuring {LLM}-as-a-Judge Reliability Across Languages and Agent Trajectories},
+  journal       = {arXiv preprint arXiv:2606.22329},
+  year          = {2026},
+  eprint        = {2606.22329},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2606.22329},
+  doi           = {10.48550/arXiv.2606.22329},
 }
 ```
 
-A preprint describing the methodology and benchmark results is forthcoming on arXiv. The Zenodo DOI will be added here upon the first tagged release.
+Preprint: [arXiv:2606.22329](https://arxiv.org/abs/2606.22329)
 
 ---
 

@@ -34,11 +34,17 @@ abstract: >
   babeljudge.agentic subpackage.
 preferred-citation:
   type: article
-  title: "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages"
+  title: "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages and Agent Trajectories"
   authors:
     - family-names: "KC"
       given-names: "Shreyas"
       email: shreyaskunjalchandrahas@gmail.com
   year: 2026
-  url: "https://github.com/Shreyaskc/BabelJudge"
-  notes: "Preprint available at arXiv (forthcoming)"
+  url: "https://arxiv.org/abs/2606.22329"
+  doi: "10.48550/arXiv.2606.22329"
+  journal: "arXiv preprint"
+  identifiers:
+    - type: doi
+      value: "10.48550/arXiv.2606.22329"
+    - type: url
+      value: "https://arxiv.org/abs/2606.22329"
