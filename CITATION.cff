@@ -46,5 +46,7 @@ preferred-citation:
   identifiers:
     - type: doi
       value: "10.48550/arXiv.2606.22329"
+    - type: doi
+      value: "10.5281/zenodo.20807412"
     - type: url
       value: "https://arxiv.org/abs/2606.22329"

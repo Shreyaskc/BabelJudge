@@ -1,5 +1,9 @@
 # BabelJudge
 
+[![arXiv](https://img.shields.io/badge/arXiv-2606.22329-b31b1b.svg)](https://arxiv.org/abs/2606.22329)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20807412.svg)](https://doi.org/10.5281/zenodo.20807412)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 **Stress-testing the reliability of LLM judges across languages.**
 
 LLM-as-a-judge is now the default evaluation method in most NLP and agent pipelines. BabelJudge audits the auditors — measuring how reliably a judge model picks the better response when the task is in Arabic, Swahili, Hindi, or any of a dozen other languages, not just English.
